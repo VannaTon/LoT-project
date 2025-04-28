@@ -107,3 +107,71 @@ def connect_arduino():
             pass
         arduino = None
         return f"Error sending command: {e}"
+
+# Store the state of each LED
+led_states= {
+  "1": False,
+  "2": False,
+  "3": False
+}
+
+# Web page route 
+@app.route("/", methods=["GET", "POST"])
+def home():
+  global led_states
+  message = ""
+  
+  # Handle button clicks
+  if request.method == "POST":
+    #LED 1
+    if "led1_on" in request.form:
+      message = send_to_arduino("on1")
+      if "Error" not in message and "Not connected" not in message:
+        led_states["1"] = True
+    elif "led1_off" in request.form:
+      message = send_to_arduino("off1")
+      if "Error" not in message and "Not connected" not in message:
+        led_states["1"] = False 
+        
+    # LED 2
+    elif "led2_on" in request.form:
+      message = send_to_arduino("on2")
+      if "Error" not in message and "Not connected" not in message:
+        led_states["2"] = True
+    elif "led2_off" in request.form:
+      message = send_to_arduino("off2")
+      if "Error" not in message and "Not connected" not in message:
+        led_states["2"] = False
+        
+    # LED 3
+    elif "led3on" in request.form:
+      message = send_to_arduino("on3")
+      if "Error" not in message and "Not connected" not in message:
+        led_states["3"]= True
+    elif "led2_off" in request.form:
+      message = send_to_arduino("off3")
+      if "Error" not in message and "Not connected" not in message:
+        led_states["3"]= False
+        
+  # show the web page with current LED states
+  return render_template("index.html", message=message, led_states=led_states)
+  
+# New route to get current LED states (for AJAX updates)
+@app.route("/status", methods=["GET"])
+def status():
+  return {
+    "led_states": led_states,
+    "connected": arduino is not None and arduino.is_open
+  }
+  
+# Start the web server 
+if __name__ == "__main__":
+  # Connect to Arduino when starting 
+  connect_arduino()
+  
+  # Start the web server 
+  print("Starting web server...")
+  print("Open your browser and go to: http//127.0.0.1:5000")
+  
+  # Run with debug=False to avoid port conflicts
+  app.run(debug=False, host="127.0.0.1", port=5000)
