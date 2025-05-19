@@ -1,5 +1,3 @@
-
-// Update connection status every 5 seconds
 function updateConnectionStatus() {
     fetch('/status')
         .then(response => response.json())
@@ -8,16 +6,15 @@ function updateConnectionStatus() {
             const connectionText = document.getElementById('connection-text');
 
             if (data.connected) {
-                indicator.classList.remove('disconnected');
                 indicator.classList.add('connected');
+                indicator.classList.remove('disconnected');
                 connectionText.textContent = 'Connected to Arduino';
             } else {
-                indicator.classList.remove('connected');
                 indicator.classList.add('disconnected');
+                indicator.classList.remove('connected');
                 connectionText.textContent = 'Disconnected from Arduino';
             }
 
-            // Update LED states
             for (let i = 1; i <= 3; i++) {
                 const ledStatus = document.getElementById(`led${i}-status`);
                 if (ledStatus) {
@@ -30,10 +27,5 @@ function updateConnectionStatus() {
         });
 }
 
-// Initial update
 updateConnectionStatus();
-
-// Update every 5 seconds
 setInterval(updateConnectionStatus, 5000);
-
-
